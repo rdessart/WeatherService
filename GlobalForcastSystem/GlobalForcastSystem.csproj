@@ -10,10 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="process\cygwin1.dll">
+    <None Update="Process\cygwin1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="process\WIN32wgrib2.exe">
+    <None Update="Process\wgrib2_win_64.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="resources\gfs.t06z.pgrb2full.0p50.f006">
