@@ -45,13 +45,22 @@ namespace GlobalForcastSystem
             string GfsFileName = BuildFilename(observationTime, forcastHours);
             string slat = Math.Round(latitude).ToString("00");
             string slon = Math.Round(longitude).ToString("000");
-            string args = $"./resources/{GfsFileName} -s -lon {slat} {slon}";
             DateTime t0 = DateTime.Today.AddHours(observationTime).AddHours(forcastHours);
+#if OS_WIN_64
+            string args = $"./resources/{GfsFileName} -s -lon {slat} {slon}";
             string filePath = string.Format(@".\resources\weatherData\gfs{0:0000}{1:00}{2:00}{3:00}-{4}-{5}.grid",t0.Year, t0.Month, t0.Day, t0.Hour, slat, slon);
             if (!Directory.Exists(@".\resources\weatherData\"))
             {
                 Directory.CreateDirectory(@".\resources\weatherData\");
             }
+#else
+ string args = $"./resources/{GfsFileName} -s -lon {slat} {slon}";
+            string filePath = string.Format(@"./resources/weatherData/gfs{0:0000}{1:00}{2:00}{3:00}-{4}-{5}.grid",t0.Year, t0.Month, t0.Day, t0.Hour, slat, slon);
+            if (!Directory.Exists(@"./resources/weatherData/"))
+            {
+                Directory.CreateDirectory(@"./resources/WeatherData/");
+            }
+#endif
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
@@ -65,11 +74,11 @@ namespace GlobalForcastSystem
                     UseShellExecute = false,
                     Arguments = args.ToString(),
 #if OS_WIN_64
-                    FileName = @"./process/WIN32wgrib2.exe",
+                    FileName = @".\Process\wgrib2_win_64.exe",
 #elif OS_LIN_64
-                    FileName = @"./process/wgrib2_lin64",
+                    FileName = @"./Process/wgrib2_lin_64",
 #elif OS_LIN_ARM
-                    FileName = @"./process/wgrib2_arm",
+                    FileName = @"./Process/wgrib2_arm64",
 #endif
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
