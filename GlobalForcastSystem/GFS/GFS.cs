@@ -20,46 +20,48 @@ namespace GlobalForcastSystem
         public Dictionary<KeyValuePair<double, double>, GFSGrid> Grids { get; protected set; }
         public DateTime Time { get; set; }
         public DateTime ForcastedAt { get; set; }
-        public static string GetLatestGFSUrl(int forcastHours = 6)
+        public DateTime ForcastDate { get; set; }
+        public DateTime ObservationDate { get; set; }
+        public string OutputDir { get; set; }
+        public int ObservationHours { get; set; }
+        public int ForecastHours { get; set; }
+        public static DateTime GetLatestObservationHour()
         {
             DateTime utc = DateTime.UtcNow;
             int latestHoursRel = utc.Hour - (utc.Hour % 6);
-            DateTime latestRelease = new DateTime(utc.Year, utc.Month, utc.Day, latestHoursRel, 0, 0);
-            if ((utc - latestRelease).TotalMinutes < 190)
-            //NOAA need 1 hours to publish the GFS data
+            if ((utc.Hour * 60 + utc.Minute) - (latestHoursRel * 60) < 190)
+            //NOAA need 3 hours to publish the GFS data
             {
-                latestRelease = latestRelease.AddHours(-6);
                 latestHoursRel -= 6;
             }
-            Console.WriteLine(latestRelease);
-            string url = $"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{latestRelease.Year:0000}{latestRelease.Month:00}{latestRelease.Day:00}/{latestHoursRel:00}/gfs.t{latestHoursRel:00}z.pgrb2full.0p50.f{forcastHours:000}";
-            return url;
+            return new DateTime(utc.Year, utc.Month, utc.Day, latestHoursRel, 0, 0); ;
         }
 
-        public static string GenerateName(int forcastHours = 6)
+        public static string GenerateName(int forcastHours)
         {
-            DateTime utc = DateTime.UtcNow;
-            int latestHoursRel = utc.Hour - (utc.Hour % 6);
-            DateTime latestRelease = new DateTime(utc.Year, utc.Month, utc.Day, latestHoursRel, 0, 0);
-            if ((utc - latestRelease).TotalMinutes < 190)
-            //NOAA need 1 hours to publish the GFS data
-            {
-                latestRelease = latestRelease.AddHours(-6);
-                latestHoursRel -= 6;
-            }
-            Console.WriteLine(latestRelease);
-           return $"gfs.t{latestHoursRel:00}z.pgrb2full.0p50.f{forcastHours:000}";
+            DateTime latestRelease = GetLatestObservationHour();
+            return $"gfs.t{latestRelease.Hour:00}z.pgrb2full.0p50.f{forcastHours:000}";
+        }
+        public static string GetLatestGFSUrl(int forcastHours)
+        {
+            DateTime latestRelease = GetLatestObservationHour();
+            string url = $"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{latestRelease.Year:0000}{latestRelease.Month:00}{latestRelease.Day:00}/{latestRelease.Hour:00}/{GenerateName(forcastHours)}";
+            return url;
         }
 
         protected static string BuildFilename(int observationTime, int forcastHours)
         {
             return $"gfs.t{observationTime:00}z.pgrb2full.0p50.f{forcastHours:000}";
         }
+
         protected void ExtractGFSFileLatLon(double latitude, double longitude, int observationTime, int forcastHours)
         {
             string GfsFileName = BuildFilename(observationTime, forcastHours);
             string slat = Math.Round(latitude).ToString("00");
             string slon = Math.Round(longitude).ToString("000");
+            ObservationDate = DateTime.Today.AddHours(observationTime);
+            ForcastDate = ObservationDate.AddHours(forcastHours);
+
             DateTime t0 = DateTime.Today.AddHours(observationTime).AddHours(forcastHours);
 #if OS_WIN_64
             string args = $"./resources/{GfsFileName} -s -lon {slat} {slon}";
@@ -106,7 +108,7 @@ namespace GlobalForcastSystem
             gfsStreamW.Close();
             ParseFile(filePath);
         }
-        protected void ParseFile(string path)
+        public void ParseFile(string path)
         {
             if (!File.Exists(path))
             {
@@ -114,7 +116,7 @@ namespace GlobalForcastSystem
             }
             string content = File.ReadAllText(path);
             string[] lines = content.Split('\n');
-            Console.WriteLine($"They are {lines.Length} lines in the file");
+            Console.WriteLine($"{path} >> They are {lines.Length} lines in the file");
             List<GFSLine> GFSLines = new List<GFSLine>();
             foreach (string line in lines)
             {
@@ -144,30 +146,14 @@ namespace GlobalForcastSystem
 
             foreach (KeyValuePair<KeyValuePair<double, double>, GFSGrid> grid in Grids)
             {
-                Console.WriteLine($"Displaying data at {grid.Key.Key} - {grid.Key.Value}");
-                foreach (var layer in grid.Value.Layers)
-                {
-                    if (layer.IsLayerTropopause)
-                    {
-                        Console.Write("*TROPOPAUSE* ");
-                    }
-                    else if (layer.IsLayerSurface)
-                    {
-                        Console.Write("*GROUND LVL* ");
-                    }
-                    else
-                    {
-                        Console.Write("             ");
-                    }
-                    Console.WriteLine($"{Math.Round(layer.GeoAltitudeFt):000000}ft | {layer.TemperatureCel:+00.00;-00.00;0000.0}°C | {layer.RelativeHumidity:000.00}% | {Math.Round(layer.WindDirectionTrue):000}° @ {Math.Round(layer.WindSpeedKts):000} kts");
-                }
                 string text = JsonSerializer.Serialize<GFSGrid>(grid.Value);
-                string fileName = $"GFS-{grid.Key.Key}-{grid.Key.Value}.json";
-                if(File.Exists(fileName))
+                string fileName = $"GFS-{ForcastDate.Day:00}{ForcastDate.Month:00}{ForcastDate.Year:0000}_{ForcastDate.Hour:00}-{grid.Key.Key}-{grid.Key.Value}.json";
+                string path = Path.Join(OutputDir, fileName);
+                if(File.Exists(path))
                 {
-                    File.Delete(fileName);
+                    File.Delete(path);
                 }
-                File.WriteAllText(fileName, text);
+                File.WriteAllText(path, text);
             }
         }
 
@@ -176,8 +162,13 @@ namespace GlobalForcastSystem
             Grids = new Dictionary<KeyValuePair<double, double>, GFSGrid>();
         }
 
-        public async Task<bool> GetData()
+        public async Task<bool> GetData(int observation, int forcast)
         {
+            if(!Directory.Exists(OutputDir))
+            {
+                Directory.CreateDirectory(OutputDir);
+            }
+
             List<List<double>> RequestedGrid = new List<List<double>>()
             {
                new List<double>(){ 52.0, 2.0 },
@@ -209,7 +200,7 @@ namespace GlobalForcastSystem
             foreach (List<double> latlon in RequestedGrid)
             {
                 object arg = latlon;
-                var task = new TaskFactory().StartNew((test) => this.ExtractGFSFileLatLon((test as List<double>)[0], (test as List<double>)[1], 6, 6), arg);
+                var task = new TaskFactory().StartNew((test) => this.ExtractGFSFileLatLon((test as List<double>)[0], (test as List<double>)[1], observation, forcast), arg);
                 ExtractTask.Add(task);
             }
             await Task.WhenAll(ExtractTask.ToArray());

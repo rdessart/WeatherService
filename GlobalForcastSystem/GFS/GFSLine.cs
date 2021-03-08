@@ -34,7 +34,8 @@ namespace GlobalForcastSystem
         public string FieldDescription { get; set; }
         public double Pressure { get; set; }
         public bool IsPressureAltitude { get; protected set; }
-        public TimeSpan ForcastTime { get; set; }
+        //public TimeSpan ForcastTime { get; set; }
+        public int ForcastTime { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Value { get; set; }
@@ -71,7 +72,14 @@ namespace GlobalForcastSystem
                 IsPressureAltitude = false;
                 Pressure = -2;
             }
-            ForcastTime = new TimeSpan(int.Parse(Regex.Match(datas[5], @"\d{0,2}\d").Value), 0, 0);
+            if (datas[5] == "anl")
+            {
+                ForcastTime = 0;
+            }
+            else
+            {
+                ForcastTime = int.Parse(Regex.Match(datas[5], @"\d{0,2}\d").Value);
+            }
             string[] field = datas[7].Split(',');
             Longitude = double.Parse(field[0].Substring(4), CultureInfo.InvariantCulture);
             Latitude = double.Parse(field[1].Substring(4), CultureInfo.InvariantCulture);

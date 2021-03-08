@@ -6,7 +6,7 @@ namespace GlobalForcastSystem
 {
     public class GFSLayer
     {
-        public TimeSpan Forcast { get; protected set; }
+        protected int Forcast;
         public double GeoAltitudeFt { get; set; }
         public double BaroAltitudeFt { get; set; }
         public double TemperatureCel { get; set; }
@@ -41,11 +41,15 @@ namespace GlobalForcastSystem
             IsLayerTropopause = false;
             IsLayerTropopause = false;
         }
+        public int GetForcastTime()
+        {
+            return Forcast;
+        }
 
         public GFSLayer(double pressurehPa, List<GFSLine> datas)
         {
             Forcast = datas[0].ForcastTime;
-            foreach(GFSLine data in datas)
+            foreach (GFSLine data in datas)
             {
                 if (pressurehPa == -1)
                 {

@@ -13,10 +13,10 @@ namespace GlobalForcastSystem
             set
             {
                 _layers = value;
-                Forcast = value[0].Forcast;
+                Forcast = value[0].GetForcastTime();
             }
         }
-        public TimeSpan Forcast { get; set; }
+        public int Forcast { get; set; }
 
     }
 }
