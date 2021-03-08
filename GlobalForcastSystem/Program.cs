@@ -6,14 +6,12 @@ namespace GlobalForcastSystem
     {
         static async Task Main(string[] args)
         {
+            Console.WriteLine("GFS PARSER 1.0.0.0");
             Console.WriteLine(GFS.GetLatestGFSUrl());
-            //Console.WriteLine("GFS PARSER 1.0.0.0");
-            //GFS gfs = new GFS();
-            //bool res = await gfs.GetData();
-            //gfs.DisplayGrids();
-            //Console.WriteLine(res);
+            GFS gfs = new GFS();
+            bool res = await gfs.GetData();
+            Console.WriteLine(res);
+            gfs.DisplayGrids();
         }
-
-        
     }
 }

@@ -338,3 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/GlobalForcastSystem/resources/gfs.t06z.pgrb2full.0p50.f006

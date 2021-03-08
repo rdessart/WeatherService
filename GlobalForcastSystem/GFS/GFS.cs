@@ -25,14 +25,14 @@ namespace GlobalForcastSystem
             DateTime utc = DateTime.UtcNow;
             int latestHoursRel = utc.Hour - (utc.Hour % 6);
             DateTime latestRelease = new DateTime(utc.Year, utc.Month, utc.Day, latestHoursRel, 0, 0);
-            if ((utc - latestRelease).TotalMinutes < 60)
+            if ((utc - latestRelease).TotalMinutes < 165)
             //NOAA need 1 hours to publish the GFS data
             {
                 latestRelease = latestRelease.AddHours(-6);
                 latestHoursRel -= 6;
             }
             Console.WriteLine(latestRelease);
-            string url = $"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{latestRelease.Year:0000}{latestRelease.Month:00}{latestRelease.Day:00}/{latestHoursRel:00}/gfs.t06z.pgrb2full.0p50.f{forcastHours:000}";
+            string url = $"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{latestRelease.Year:0000}{latestRelease.Month:00}{latestRelease.Day:00}/{latestHoursRel:00}/gfs.t{latestHoursRel:00}z.pgrb2full.0p50.f{forcastHours:000}";
             return url;
         }
 
@@ -185,7 +185,7 @@ namespace GlobalForcastSystem
             foreach (List<double> latlon in RequestedGrid)
             {
                 object arg = latlon;
-                var task = new TaskFactory().StartNew((test) => this.ExtractGFSFileLatLon((test as List<double>)[0], (test as List<double>)[1], 12, 18), arg);
+                var task = new TaskFactory().StartNew((test) => this.ExtractGFSFileLatLon((test as List<double>)[0], (test as List<double>)[1], 6, 6), arg);
                 ExtractTask.Add(task);
             }
             await Task.WhenAll(ExtractTask.ToArray());
