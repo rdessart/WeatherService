@@ -1,0 +1,3 @@
+TAF  = https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/
+METAR  = https://tgftp.nws.noaa.gov/data/observations/metar/stations/
+GFS = https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{date}{month}{day}/{ObservationHoursZ}/gfs.t06z.pgrb2full.0p50.f{forcastHoursz}
