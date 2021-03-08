@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalForcastSystem", "GlobalForcastSystem\GlobalForcastSystem.csproj", "{937BD2BF-E7F7-4D0C-BA98-CB6ED98BBB40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{937BD2BF-E7F7-4D0C-BA98-CB6ED98BBB40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{937BD2BF-E7F7-4D0C-BA98-CB6ED98BBB40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{937BD2BF-E7F7-4D0C-BA98-CB6ED98BBB40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{937BD2BF-E7F7-4D0C-BA98-CB6ED98BBB40}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7D15C1F4-406B-4A76-8828-0F8FDB52C627}
+	EndGlobalSection
+EndGlobal
